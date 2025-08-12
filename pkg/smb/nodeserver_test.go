@@ -206,6 +206,23 @@ func TestNodeStageVolume(t *testing.T) {
 			},
 		},
 		{
+			desc: "[Error] Failed SMB mount mocked by MountSensitive (password with special characters)",
+			req: &csi.NodeStageVolumeRequest{VolumeId: "vol_1##", StagingTargetPath: errorMountSensSource,
+				VolumeCapability: &stdVolCap,
+				VolumeContext:    volContext,
+				Secrets:          secretsSpecial},
+			skipOnWindows: true,
+			flakyWindowsErrorMessage: fmt.Sprintf("rpc error: code = Internal desc = volume(vol_1##) mount \"%s\" on %#v failed "+
+				"with NewSmbGlobalMapping(%s, %s) failed with error: rpc error: code = Unknown desc = NewSmbGlobalMapping failed.",
+				strings.Replace(testSource, "\\", "\\\\", -1), errorMountSensSource, testSource, errorMountSensSource),
+			expectedErr: testutil.TestError{
+				DefaultError: status.Errorf(codes.Internal,
+					"volume(vol_1##) mount \"%s\" on \"%s\" failed with fake "+
+						"MountSensitive: target error",
+					strings.Replace(testSource, "\\", "\\\\", -1), errorMountSensSource),
+			},
+		},
+		{
 			desc: "[Success] Valid request",
 			req: &csi.NodeStageVolumeRequest{VolumeId: "vol_1##", StagingTargetPath: sourceTest,
 				VolumeCapability: &stdVolCap,
