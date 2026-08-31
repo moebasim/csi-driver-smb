@@ -119,10 +119,8 @@ type Statx_t struct {
 	Atomic_write_unit_min     uint32
 	Atomic_write_unit_max     uint32
 	Atomic_write_segments_max uint32
-	Dio_read_offset_align     uint32
-	Atomic_write_unit_max_opt uint32
 	_                         [1]uint32
-	_                         [8]uint64
+	_                         [9]uint64
 }
 
 type Fsid struct {
@@ -559,6 +557,29 @@ type TCPBBRInfo struct {
 	Cwnd_gain   uint32
 }
 
+type TCPVegasInfo struct {
+	Enabled uint32
+	Rttcnt  uint32
+	Rtt     uint32
+	Minrtt  uint32
+}
+
+type TCPDCTCPInfo struct {
+	Enabled  uint16
+	Ce_state uint16
+	Alpha    uint32
+	Ab_ecn   uint32
+	Ab_tot   uint32
+}
+
+type TCPBBRInfo struct {
+	Bw_lo       uint32
+	Bw_hi       uint32
+	Min_rtt     uint32
+	Pacing_gain uint32
+	Cwnd_gain   uint32
+}
+
 type CanFilter struct {
 	Id   uint32
 	Mask uint32
@@ -599,7 +620,7 @@ const (
 	SizeofIPv6MTUInfo       = 0x20
 	SizeofICMPv6Filter      = 0x20
 	SizeofUcred             = 0xc
-	SizeofTCPInfo           = 0x118
+	SizeofTCPInfo           = 0xf8
 	SizeofTCPCCInfo         = 0x14
 	SizeofCanFilter         = 0x8
 	SizeofTCPRepairOpt      = 0x8
@@ -2651,8 +2672,8 @@ const (
 	SOF_TIMESTAMPING_BIND_PHC     = 0x8000
 	SOF_TIMESTAMPING_OPT_ID_TCP   = 0x10000
 
-	SOF_TIMESTAMPING_LAST = 0x40000
-	SOF_TIMESTAMPING_MASK = 0x7ffff
+	SOF_TIMESTAMPING_LAST = 0x20000
+	SOF_TIMESTAMPING_MASK = 0x3ffff
 
 	SCM_TSTAMP_SND   = 0x0
 	SCM_TSTAMP_SCHED = 0x1
@@ -3892,16 +3913,7 @@ const (
 	ETHTOOL_MSG_PSE_GET                       = 0x24
 	ETHTOOL_MSG_PSE_SET                       = 0x25
 	ETHTOOL_MSG_RSS_GET                       = 0x26
-	ETHTOOL_MSG_PLCA_GET_CFG                  = 0x27
-	ETHTOOL_MSG_PLCA_SET_CFG                  = 0x28
-	ETHTOOL_MSG_PLCA_GET_STATUS               = 0x29
-	ETHTOOL_MSG_MM_GET                        = 0x2a
-	ETHTOOL_MSG_MM_SET                        = 0x2b
-	ETHTOOL_MSG_MODULE_FW_FLASH_ACT           = 0x2c
-	ETHTOOL_MSG_PHY_GET                       = 0x2d
-	ETHTOOL_MSG_TSCONFIG_GET                  = 0x2e
-	ETHTOOL_MSG_TSCONFIG_SET                  = 0x2f
-	ETHTOOL_MSG_USER_MAX                      = 0x33
+	ETHTOOL_MSG_USER_MAX                      = 0x2d
 	ETHTOOL_MSG_KERNEL_NONE                   = 0x0
 	ETHTOOL_MSG_STRSET_GET_REPLY              = 0x1
 	ETHTOOL_MSG_LINKINFO_GET_REPLY            = 0x2
@@ -3941,17 +3953,7 @@ const (
 	ETHTOOL_MSG_MODULE_NTF                    = 0x24
 	ETHTOOL_MSG_PSE_GET_REPLY                 = 0x25
 	ETHTOOL_MSG_RSS_GET_REPLY                 = 0x26
-	ETHTOOL_MSG_PLCA_GET_CFG_REPLY            = 0x27
-	ETHTOOL_MSG_PLCA_GET_STATUS_REPLY         = 0x28
-	ETHTOOL_MSG_PLCA_NTF                      = 0x29
-	ETHTOOL_MSG_MM_GET_REPLY                  = 0x2a
-	ETHTOOL_MSG_MM_NTF                        = 0x2b
-	ETHTOOL_MSG_MODULE_FW_FLASH_NTF           = 0x2c
-	ETHTOOL_MSG_PHY_GET_REPLY                 = 0x2d
-	ETHTOOL_MSG_PHY_NTF                       = 0x2e
-	ETHTOOL_MSG_TSCONFIG_GET_REPLY            = 0x2f
-	ETHTOOL_MSG_TSCONFIG_SET_REPLY            = 0x30
-	ETHTOOL_MSG_KERNEL_MAX                    = 0x36
+	ETHTOOL_MSG_KERNEL_MAX                    = 0x2e
 	ETHTOOL_FLAG_COMPACT_BITSETS              = 0x1
 	ETHTOOL_FLAG_OMIT_REPLY                   = 0x2
 	ETHTOOL_FLAG_STATS                        = 0x4
@@ -4880,7 +4882,7 @@ const (
 	NL80211_ATTR_MAC_HINT                                   = 0xc8
 	NL80211_ATTR_MAC_MASK                                   = 0xd7
 	NL80211_ATTR_MAX_AP_ASSOC_STA                           = 0xca
-	NL80211_ATTR_MAX                                        = 0x15c
+	NL80211_ATTR_MAX                                        = 0x14d
 	NL80211_ATTR_MAX_CRIT_PROT_DURATION                     = 0xb4
 	NL80211_ATTR_MAX_CSA_COUNTERS                           = 0xce
 	NL80211_ATTR_MAX_HW_TIMESTAMP_PEERS                     = 0x143
@@ -5514,7 +5516,7 @@ const (
 	NL80211_FREQUENCY_ATTR_GO_CONCURRENT                    = 0xf
 	NL80211_FREQUENCY_ATTR_INDOOR_ONLY                      = 0xe
 	NL80211_FREQUENCY_ATTR_IR_CONCURRENT                    = 0xf
-	NL80211_FREQUENCY_ATTR_MAX                              = 0x27
+	NL80211_FREQUENCY_ATTR_MAX                              = 0x21
 	NL80211_FREQUENCY_ATTR_MAX_TX_POWER                     = 0x6
 	NL80211_FREQUENCY_ATTR_NO_10MHZ                         = 0x11
 	NL80211_FREQUENCY_ATTR_NO_160MHZ                        = 0xc
@@ -6370,106 +6372,3 @@ type SockDiagReq struct {
 }
 
 const RTM_NEWNVLAN = 0x70
-
-const (
-	MPOL_BIND                = 0x2
-	MPOL_DEFAULT             = 0x0
-	MPOL_F_ADDR              = 0x2
-	MPOL_F_MEMS_ALLOWED      = 0x4
-	MPOL_F_MOF               = 0x8
-	MPOL_F_MORON             = 0x10
-	MPOL_F_NODE              = 0x1
-	MPOL_F_NUMA_BALANCING    = 0x2000
-	MPOL_F_RELATIVE_NODES    = 0x4000
-	MPOL_F_SHARED            = 0x1
-	MPOL_F_STATIC_NODES      = 0x8000
-	MPOL_INTERLEAVE          = 0x3
-	MPOL_LOCAL               = 0x4
-	MPOL_MAX                 = 0x7
-	MPOL_MF_INTERNAL         = 0x10
-	MPOL_MF_LAZY             = 0x8
-	MPOL_MF_MOVE_ALL         = 0x4
-	MPOL_MF_MOVE             = 0x2
-	MPOL_MF_STRICT           = 0x1
-	MPOL_MF_VALID            = 0x7
-	MPOL_MODE_FLAGS          = 0xe000
-	MPOL_PREFERRED           = 0x1
-	MPOL_PREFERRED_MANY      = 0x5
-	MPOL_WEIGHTED_INTERLEAVE = 0x6
-)
-
-const (
-	GPIO_V2_GET_LINEINFO_IOCTL       = 0xc100b405
-	GPIO_V2_GET_LINE_IOCTL           = 0xc250b407
-	GPIO_V2_LINE_GET_VALUES_IOCTL    = 0xc010b40e
-	GPIO_V2_LINE_SET_VALUES_IOCTL    = 0xc010b40f
-	GPIO_V2_GET_LINEINFO_WATCH_IOCTL = 0xc100b406
-	GPIO_GET_LINEINFO_UNWATCH_IOCTL  = 0xc004b40c
-)
-const (
-	GPIO_V2_LINE_ATTR_ID_FLAGS         = 0x1
-	GPIO_V2_LINE_ATTR_ID_OUTPUT_VALUES = 0x2
-	GPIO_V2_LINE_ATTR_ID_DEBOUNCE      = 0x3
-	GPIO_V2_LINE_CHANGED_REQUESTED     = 0x1
-	GPIO_V2_LINE_CHANGED_RELEASED      = 0x2
-	GPIO_V2_LINE_CHANGED_CONFIG        = 0x3
-	GPIO_V2_LINE_EVENT_RISING_EDGE     = 0x1
-	GPIO_V2_LINE_EVENT_FALLING_EDGE    = 0x2
-)
-
-type GPIOChipInfo struct {
-	Name  [32]byte
-	Label [32]byte
-	Lines uint32
-}
-type GPIOV2LineValues struct {
-	Bits uint64
-	Mask uint64
-}
-type GPIOV2LineAttribute struct {
-	Id    uint32
-	_     uint32
-	Flags uint64
-}
-type GPIOV2LineConfigAttribute struct {
-	Attr GPIOV2LineAttribute
-	Mask uint64
-}
-type GPIOV2LineConfig struct {
-	Flags     uint64
-	Num_attrs uint32
-	_         [5]uint32
-	Attrs     [10]GPIOV2LineConfigAttribute
-}
-type GPIOV2LineRequest struct {
-	Offsets           [64]uint32
-	Consumer          [32]byte
-	Config            GPIOV2LineConfig
-	Num_lines         uint32
-	Event_buffer_size uint32
-	_                 [5]uint32
-	Fd                int32
-}
-type GPIOV2LineInfo struct {
-	Name      [32]byte
-	Consumer  [32]byte
-	Offset    uint32
-	Num_attrs uint32
-	Flags     uint64
-	Attrs     [10]GPIOV2LineAttribute
-	_         [4]uint32
-}
-type GPIOV2LineInfoChanged struct {
-	Info         GPIOV2LineInfo
-	Timestamp_ns uint64
-	Event_type   uint32
-	_            [5]uint32
-}
-type GPIOV2LineEvent struct {
-	Timestamp_ns uint64
-	Id           uint32
-	Offset       uint32
-	Seqno        uint32
-	Line_seqno   uint32
-	_            [6]uint32
-}

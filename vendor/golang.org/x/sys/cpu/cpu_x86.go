@@ -184,49 +184,49 @@ func archInit() {
 	}
 
 	eax7, ebx7, ecx7, edx7 := cpuid(7, 0)
-	X86.HasBMI1 = isSet(ebx7, cpuid_BMI1)
-	X86.HasAVX2 = isSet(ebx7, cpuid_AVX2) && osSupportsAVX
-	X86.HasBMI2 = isSet(ebx7, cpuid_BMI2)
-	X86.HasERMS = isSet(ebx7, cpuid_ERMS)
-	X86.HasRDSEED = isSet(ebx7, cpuid_RDSEED)
-	X86.HasADX = isSet(ebx7, cpuid_ADX)
+	X86.HasBMI1 = isSet(3, ebx7)
+	X86.HasAVX2 = isSet(5, ebx7) && osSupportsAVX
+	X86.HasBMI2 = isSet(8, ebx7)
+	X86.HasERMS = isSet(9, ebx7)
+	X86.HasRDSEED = isSet(18, ebx7)
+	X86.HasADX = isSet(19, ebx7)
 
 	X86.HasAVX512 = isSet(ebx7, cpuid_AVX512F) && osSupportsAVX512 // Because avx-512 foundation is the core required extension
 	if X86.HasAVX512 {
 		X86.HasAVX512F = true
-		X86.HasAVX512CD = isSet(ebx7, cpuid_AVX512CD)
-		X86.HasAVX512ER = isSet(ebx7, cpuid_AVX512ER)
-		X86.HasAVX512PF = isSet(ebx7, cpuid_AVX512PF)
-		X86.HasAVX512VL = isSet(ebx7, cpuid_AVX512VL)
-		X86.HasAVX512BW = isSet(ebx7, cpuid_AVX512BW)
-		X86.HasAVX512DQ = isSet(ebx7, cpuid_AVX512DQ)
-		X86.HasAVX512IFMA = isSet(ebx7, cpuid_AVX512IFMA)
-		X86.HasAVX512VBMI = isSet(ecx7, cpuid_AVX512_VBMI)
-		X86.HasAVX5124VNNIW = isSet(edx7, cpuid_AVX5124VNNIW)
-		X86.HasAVX5124FMAPS = isSet(edx7, cpuid_AVX5124FMAPS)
-		X86.HasAVX512VPOPCNTDQ = isSet(ecx7, cpuid_AVX512VPOPCNTDQ)
-		X86.HasAVX512VPCLMULQDQ = isSet(ecx7, cpuid_AVX512VPCLMULQDQ)
-		X86.HasAVX512VNNI = isSet(ecx7, cpuid_AVX512VNNI)
-		X86.HasAVX512GFNI = isSet(ecx7, cpuid_AVX512GFNI)
-		X86.HasAVX512VAES = isSet(ecx7, cpuid_AVX512VAES)
-		X86.HasAVX512VBMI2 = isSet(ecx7, cpuid_AVX512VBMI2)
-		X86.HasAVX512BITALG = isSet(ecx7, cpuid_AVX512BITALG)
+		X86.HasAVX512CD = isSet(28, ebx7)
+		X86.HasAVX512ER = isSet(27, ebx7)
+		X86.HasAVX512PF = isSet(26, ebx7)
+		X86.HasAVX512VL = isSet(31, ebx7)
+		X86.HasAVX512BW = isSet(30, ebx7)
+		X86.HasAVX512DQ = isSet(17, ebx7)
+		X86.HasAVX512IFMA = isSet(21, ebx7)
+		X86.HasAVX512VBMI = isSet(1, ecx7)
+		X86.HasAVX5124VNNIW = isSet(2, edx7)
+		X86.HasAVX5124FMAPS = isSet(3, edx7)
+		X86.HasAVX512VPOPCNTDQ = isSet(14, ecx7)
+		X86.HasAVX512VPCLMULQDQ = isSet(10, ecx7)
+		X86.HasAVX512VNNI = isSet(11, ecx7)
+		X86.HasAVX512GFNI = isSet(8, ecx7)
+		X86.HasAVX512VAES = isSet(9, ecx7)
+		X86.HasAVX512VBMI2 = isSet(6, ecx7)
+		X86.HasAVX512BITALG = isSet(12, ecx7)
 	}
 
-	X86.HasAMXTile = isSet(edx7, cpuid_AMXTile)
-	X86.HasAMXInt8 = isSet(edx7, cpuid_AMXInt8)
-	X86.HasAMXBF16 = isSet(edx7, cpuid_AMXBF16)
+	X86.HasAMXTile = isSet(24, edx7)
+	X86.HasAMXInt8 = isSet(25, edx7)
+	X86.HasAMXBF16 = isSet(22, edx7)
 
 	// These features depend on the second level of extended features.
 	if eax7 >= 1 {
 		eax71, _, _, edx71 := cpuid(7, 1)
 		if X86.HasAVX512 {
-			X86.HasAVX512BF16 = isSet(eax71, cpuid_AVX512BF16)
+			X86.HasAVX512BF16 = isSet(5, eax71)
 		}
 		if X86.HasAVX {
-			X86.HasAVXIFMA = isSet(eax71, cpuid_AVXIFMA)
-			X86.HasAVXVNNI = isSet(eax71, cpuid_AVXVNNI)
-			X86.HasAVXVNNIInt8 = isSet(edx71, cpuid_AVXVNNIInt8)
+			X86.HasAVXIFMA = isSet(23, eax71)
+			X86.HasAVXVNNI = isSet(4, eax71)
+			X86.HasAVXVNNIInt8 = isSet(4, edx71)
 		}
 	}
 }

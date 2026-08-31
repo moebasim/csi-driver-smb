@@ -71,10 +71,6 @@ type GSSAPIWithMICConfig struct {
 	Server GSSAPIServer
 }
 
-func gssapiWithMICConfigured(config *GSSAPIWithMICConfig) bool {
-	return config != nil && config.AllowLogin != nil && config.Server != nil
-}
-
 // SendAuthBanner implements [ServerPreAuthConn].
 func (s *connection) SendAuthBanner(msg string) error {
 	return s.transport.writePacket(Marshal(&userAuthBannerMsg{
@@ -94,79 +90,6 @@ type ServerPreAuthConn interface {
 	// SendAuthBanner sends a banner message to the client.
 	// It returns an error once the authentication phase has ended.
 	SendAuthBanner(string) error
-}
-
-// noTouchRequiredExtension is the extension name used by OpenSSH in
-// authorized_keys options and certificate extensions to mark keys
-// whose signatures do not need to assert user presence (touch). See
-// ssh-keygen(1) and sshd(8).
-const noTouchRequiredExtension = "no-touch-required"
-
-// noTouchAllowed reports whether the user presence requirement on
-// SK signatures should be waived for this authentication attempt. The
-// requirement is waived when the "no-touch-required" extension is
-// present either in the Permissions returned by the auth callback
-// (authorized_keys-level opt-out) or in the certificate's own
-// Extensions (CA-level opt-out), matching OpenSSH behavior. OpenSSH
-// reads the per-key opt-out only from cert Extensions and
-// authorized_keys options (never from CriticalOptions); we follow the
-// same rule.
-func noTouchAllowed(pubKey PublicKey, perms *Permissions) bool {
-	if perms != nil {
-		if _, ok := perms.Extensions[noTouchRequiredExtension]; ok {
-			return true
-		}
-	}
-	if cert, ok := pubKey.(*Certificate); ok {
-		if _, ok := cert.Extensions[noTouchRequiredExtension]; ok {
-			return true
-		}
-	}
-	return false
-}
-
-// skKeyWithoutUP returns a PublicKey equivalent to pubKey but whose
-// Verify accepts SK signatures with the user-presence flag clear. If
-// pubKey is not (and does not wrap) an SK key, pubKey is returned
-// unchanged. The returned value never mutates pubKey: for SK keys a
-// shallow copy is made so that the noTouchRequired flag is set only on
-// the clone.
-//
-// The implementation is iterative rather than recursive. When pubKey
-// is a *Certificate we unwrap exactly one level to look at the inner
-// key. The SSH cert format forbids Certificate.Key from being another
-// Certificate (parseCert rejects it), but nothing stops callers from
-// constructing such a value directly in Go; a recursive descent could
-// otherwise be driven to unbounded depth by a hand-crafted or cyclic
-// Certificate. A malformed input of that shape simply returns
-// unchanged here.
-func skKeyWithoutUP(pubKey PublicKey) PublicKey {
-	cert, isCert := pubKey.(*Certificate)
-	target := pubKey
-	if isCert {
-		target = cert.Key
-	}
-	var cloned PublicKey
-	switch k := target.(type) {
-	case *skECDSAPublicKey:
-		c := *k
-		c.noTouchRequired = true
-		cloned = &c
-	case *skEd25519PublicKey:
-		c := *k
-		c.noTouchRequired = true
-		cloned = &c
-	default:
-		// Not an SK key (or a pathological *Certificate wrapping
-		// another *Certificate): pubKey is already usable for Verify.
-		return pubKey
-	}
-	if !isCert {
-		return cloned
-	}
-	c := *cert
-	c.Key = cloned
-	return &c
 }
 
 // ServerConfig holds server specific configuration data.

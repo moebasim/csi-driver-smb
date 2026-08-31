@@ -161,7 +161,6 @@ const (
 	NFDBITS                          = 0x40
 	NLDLY                            = 0x100
 	NOFLSH                           = 0x80
-	NS_GET_ID                        = 0x4008b70d
 	NS_GET_MNTNS_ID                  = 0x4008b705
 	NS_GET_NSTYPE                    = 0x2000b703
 	NS_GET_OWNER_UID                 = 0x2000b704
@@ -359,7 +358,6 @@ const (
 	RTC_WKALM_SET                    = 0x8028700f
 	SCM_DEVMEM_DMABUF                = 0x58
 	SCM_DEVMEM_LINEAR                = 0x57
-	SCM_INQ                          = 0x5d
 	SCM_TIMESTAMPING                 = 0x23
 	SCM_TIMESTAMPING_OPT_STATS       = 0x38
 	SCM_TIMESTAMPING_PKTINFO         = 0x3c

@@ -182,21 +182,13 @@ var (
 	procDwmGetWindowAttribute                                = moddwmapi.NewProc("DwmGetWindowAttribute")
 	procDwmSetWindowAttribute                                = moddwmapi.NewProc("DwmSetWindowAttribute")
 	procCancelMibChangeNotify2                               = modiphlpapi.NewProc("CancelMibChangeNotify2")
-	procFreeMibTable                                         = modiphlpapi.NewProc("FreeMibTable")
 	procGetAdaptersAddresses                                 = modiphlpapi.NewProc("GetAdaptersAddresses")
 	procGetAdaptersInfo                                      = modiphlpapi.NewProc("GetAdaptersInfo")
 	procGetBestInterfaceEx                                   = modiphlpapi.NewProc("GetBestInterfaceEx")
 	procGetIfEntry                                           = modiphlpapi.NewProc("GetIfEntry")
 	procGetIfEntry2Ex                                        = modiphlpapi.NewProc("GetIfEntry2Ex")
-	procGetIfTable2Ex                                        = modiphlpapi.NewProc("GetIfTable2Ex")
-	procGetIpForwardEntry2                                   = modiphlpapi.NewProc("GetIpForwardEntry2")
-	procGetIpForwardTable2                                   = modiphlpapi.NewProc("GetIpForwardTable2")
-	procGetIpInterfaceEntry                                  = modiphlpapi.NewProc("GetIpInterfaceEntry")
-	procGetIpInterfaceTable                                  = modiphlpapi.NewProc("GetIpInterfaceTable")
 	procGetUnicastIpAddressEntry                             = modiphlpapi.NewProc("GetUnicastIpAddressEntry")
-	procGetUnicastIpAddressTable                             = modiphlpapi.NewProc("GetUnicastIpAddressTable")
 	procNotifyIpInterfaceChange                              = modiphlpapi.NewProc("NotifyIpInterfaceChange")
-	procNotifyRouteChange2                                   = modiphlpapi.NewProc("NotifyRouteChange2")
 	procNotifyUnicastIpAddressChange                         = modiphlpapi.NewProc("NotifyUnicastIpAddressChange")
 	procAddDllDirectory                                      = modkernel32.NewProc("AddDllDirectory")
 	procAssignProcessToJobObject                             = modkernel32.NewProc("AssignProcessToJobObject")
@@ -293,7 +285,6 @@ var (
 	procGetNamedPipeHandleStateW                             = modkernel32.NewProc("GetNamedPipeHandleStateW")
 	procGetNamedPipeInfo                                     = modkernel32.NewProc("GetNamedPipeInfo")
 	procGetNamedPipeServerProcessId                          = modkernel32.NewProc("GetNamedPipeServerProcessId")
-	procGetNumberOfConsoleInputEvents                        = modkernel32.NewProc("GetNumberOfConsoleInputEvents")
 	procGetOverlappedResult                                  = modkernel32.NewProc("GetOverlappedResult")
 	procGetPriorityClass                                     = modkernel32.NewProc("GetPriorityClass")
 	procGetProcAddress                                       = modkernel32.NewProc("GetProcAddress")
@@ -1629,15 +1620,10 @@ func DwmSetWindowAttribute(hwnd HWND, attribute uint32, value unsafe.Pointer, si
 }
 
 func CancelMibChangeNotify2(notificationHandle Handle) (errcode error) {
-	r0, _, _ := syscall.SyscallN(procCancelMibChangeNotify2.Addr(), uintptr(notificationHandle))
+	r0, _, _ := syscall.Syscall(procCancelMibChangeNotify2.Addr(), 1, uintptr(notificationHandle), 0, 0)
 	if r0 != 0 {
 		errcode = syscall.Errno(r0)
 	}
-	return
-}
-
-func FreeMibTable(memory unsafe.Pointer) {
-	syscall.SyscallN(procFreeMibTable.Addr(), uintptr(memory))
 	return
 }
 
@@ -1767,6 +1753,46 @@ func NotifyUnicastIpAddressChange(family uint16, callback uintptr, callerContext
 		_p0 = 1
 	}
 	r0, _, _ := syscall.SyscallN(procNotifyUnicastIpAddressChange.Addr(), uintptr(family), uintptr(callback), uintptr(callerContext), uintptr(_p0), uintptr(unsafe.Pointer(notificationHandle)))
+	if r0 != 0 {
+		errcode = syscall.Errno(r0)
+	}
+	return
+}
+
+func GetIfEntry2Ex(level uint32, row *MibIfRow2) (errcode error) {
+	r0, _, _ := syscall.Syscall(procGetIfEntry2Ex.Addr(), 2, uintptr(level), uintptr(unsafe.Pointer(row)), 0)
+	if r0 != 0 {
+		errcode = syscall.Errno(r0)
+	}
+	return
+}
+
+func GetUnicastIpAddressEntry(row *MibUnicastIpAddressRow) (errcode error) {
+	r0, _, _ := syscall.Syscall(procGetUnicastIpAddressEntry.Addr(), 1, uintptr(unsafe.Pointer(row)), 0, 0)
+	if r0 != 0 {
+		errcode = syscall.Errno(r0)
+	}
+	return
+}
+
+func NotifyIpInterfaceChange(family uint16, callback uintptr, callerContext unsafe.Pointer, initialNotification bool, notificationHandle *Handle) (errcode error) {
+	var _p0 uint32
+	if initialNotification {
+		_p0 = 1
+	}
+	r0, _, _ := syscall.Syscall6(procNotifyIpInterfaceChange.Addr(), 5, uintptr(family), uintptr(callback), uintptr(callerContext), uintptr(_p0), uintptr(unsafe.Pointer(notificationHandle)), 0)
+	if r0 != 0 {
+		errcode = syscall.Errno(r0)
+	}
+	return
+}
+
+func NotifyUnicastIpAddressChange(family uint16, callback uintptr, callerContext unsafe.Pointer, initialNotification bool, notificationHandle *Handle) (errcode error) {
+	var _p0 uint32
+	if initialNotification {
+		_p0 = 1
+	}
+	r0, _, _ := syscall.Syscall6(procNotifyUnicastIpAddressChange.Addr(), 5, uintptr(family), uintptr(callback), uintptr(callerContext), uintptr(_p0), uintptr(unsafe.Pointer(notificationHandle)), 0)
 	if r0 != 0 {
 		errcode = syscall.Errno(r0)
 	}
@@ -2310,7 +2336,7 @@ func GetComputerName(buf *uint16, n *uint32) (err error) {
 }
 
 func GetConsoleCP() (cp uint32, err error) {
-	r0, _, e1 := syscall.SyscallN(procGetConsoleCP.Addr())
+	r0, _, e1 := syscall.Syscall(procGetConsoleCP.Addr(), 0, 0, 0, 0)
 	cp = uint32(r0)
 	if cp == 0 {
 		err = errnoErr(e1)
@@ -2327,7 +2353,7 @@ func GetConsoleMode(console Handle, mode *uint32) (err error) {
 }
 
 func GetConsoleOutputCP() (cp uint32, err error) {
-	r0, _, e1 := syscall.SyscallN(procGetConsoleOutputCP.Addr())
+	r0, _, e1 := syscall.Syscall(procGetConsoleOutputCP.Addr(), 0, 0, 0, 0)
 	cp = uint32(r0)
 	if cp == 0 {
 		err = errnoErr(e1)
@@ -2544,6 +2570,14 @@ func GetNamedPipeClientProcessId(pipe Handle, clientProcessID *uint32) (err erro
 	return
 }
 
+func GetNamedPipeClientProcessId(pipe Handle, clientProcessID *uint32) (err error) {
+	r1, _, e1 := syscall.Syscall(procGetNamedPipeClientProcessId.Addr(), 2, uintptr(pipe), uintptr(unsafe.Pointer(clientProcessID)), 0)
+	if r1 == 0 {
+		err = errnoErr(e1)
+	}
+	return
+}
+
 func GetNamedPipeHandleState(pipe Handle, state *uint32, curInstances *uint32, maxCollectionCount *uint32, collectDataTimeout *uint32, userName *uint16, maxUserNameSize uint32) (err error) {
 	r1, _, e1 := syscall.SyscallN(procGetNamedPipeHandleStateW.Addr(), uintptr(pipe), uintptr(unsafe.Pointer(state)), uintptr(unsafe.Pointer(curInstances)), uintptr(unsafe.Pointer(maxCollectionCount)), uintptr(unsafe.Pointer(collectDataTimeout)), uintptr(unsafe.Pointer(userName)), uintptr(maxUserNameSize))
 	if r1 == 0 {
@@ -2570,6 +2604,14 @@ func GetNamedPipeServerProcessId(pipe Handle, serverProcessID *uint32) (err erro
 
 func GetNumberOfConsoleInputEvents(console Handle, numevents *uint32) (err error) {
 	r1, _, e1 := syscall.SyscallN(procGetNumberOfConsoleInputEvents.Addr(), uintptr(console), uintptr(unsafe.Pointer(numevents)))
+	if r1 == 0 {
+		err = errnoErr(e1)
+	}
+	return
+}
+
+func GetNamedPipeServerProcessId(pipe Handle, serverProcessID *uint32) (err error) {
+	r1, _, e1 := syscall.Syscall(procGetNamedPipeServerProcessId.Addr(), 2, uintptr(pipe), uintptr(unsafe.Pointer(serverProcessID)), 0)
 	if r1 == 0 {
 		err = errnoErr(e1)
 	}
@@ -3241,6 +3283,14 @@ func SetConsoleCP(cp uint32) (err error) {
 	return
 }
 
+func SetConsoleCP(cp uint32) (err error) {
+	r1, _, e1 := syscall.Syscall(procSetConsoleCP.Addr(), 1, uintptr(cp), 0, 0)
+	if r1 == 0 {
+		err = errnoErr(e1)
+	}
+	return
+}
+
 func setConsoleCursorPosition(console Handle, position uint32) (err error) {
 	r1, _, e1 := syscall.SyscallN(procSetConsoleCursorPosition.Addr(), uintptr(console), uintptr(position))
 	if r1 == 0 {
@@ -3259,6 +3309,14 @@ func SetConsoleMode(console Handle, mode uint32) (err error) {
 
 func SetConsoleOutputCP(cp uint32) (err error) {
 	r1, _, e1 := syscall.SyscallN(procSetConsoleOutputCP.Addr(), uintptr(cp))
+	if r1 == 0 {
+		err = errnoErr(e1)
+	}
+	return
+}
+
+func SetConsoleOutputCP(cp uint32) (err error) {
+	r1, _, e1 := syscall.Syscall(procSetConsoleOutputCP.Addr(), 1, uintptr(cp), 0, 0)
 	if r1 == 0 {
 		err = errnoErr(e1)
 	}

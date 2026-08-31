@@ -1918,10 +1918,6 @@ const (
 	LANDLOCK_ACCESS_NET_CONNECT_TCP             = 0x2
 	LANDLOCK_CREATE_RULESET_ERRATA              = 0x2
 	LANDLOCK_CREATE_RULESET_VERSION             = 0x1
-	LANDLOCK_RESTRICT_SELF_LOG_NEW_EXEC_ON      = 0x2
-	LANDLOCK_RESTRICT_SELF_LOG_SAME_EXEC_OFF    = 0x1
-	LANDLOCK_RESTRICT_SELF_LOG_SUBDOMAINS_OFF   = 0x4
-	LANDLOCK_RESTRICT_SELF_TSYNC                = 0x8
 	LANDLOCK_SCOPE_ABSTRACT_UNIX_SOCKET         = 0x1
 	LANDLOCK_SCOPE_SIGNAL                       = 0x2
 	LINUX_REBOOT_CMD_CAD_OFF                    = 0x0
@@ -3040,10 +3036,8 @@ const (
 	PTP_STRICT_FLAGS                            = 0x8
 	PTP_SYS_OFFSET_EXTENDED                     = 0xc4c03d09
 	PTP_SYS_OFFSET_EXTENDED2                    = 0xc4c03d12
-	PTP_SYS_OFFSET_EXTENDED_CYCLES              = 0xc4c03d16
 	PTP_SYS_OFFSET_PRECISE                      = 0xc0403d08
 	PTP_SYS_OFFSET_PRECISE2                     = 0xc0403d11
-	PTP_SYS_OFFSET_PRECISE_CYCLES               = 0xc0403d15
 	PTRACE_ATTACH                               = 0x10
 	PTRACE_CONT                                 = 0x7
 	PTRACE_DETACH                               = 0x11
@@ -3381,13 +3375,12 @@ const (
 	RUSAGE_THREAD                               = 0x1
 	RWF_APPEND                                  = 0x10
 	RWF_ATOMIC                                  = 0x40
-	RWF_DONTCACHE                               = 0x80
 	RWF_DSYNC                                   = 0x2
 	RWF_HIPRI                                   = 0x1
 	RWF_NOAPPEND                                = 0x20
 	RWF_NOSIGNAL                                = 0x100
 	RWF_NOWAIT                                  = 0x8
-	RWF_SUPPORTED                               = 0x1ff
+	RWF_SUPPORTED                               = 0x7f
 	RWF_SYNC                                    = 0x4
 	RWF_WRITE_LIFE_NOT_SET                      = 0x0
 	SCHED_BATCH                                 = 0x3
